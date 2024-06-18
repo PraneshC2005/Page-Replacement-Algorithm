@@ -5,15 +5,27 @@ document.getElementById('page-form').addEventListener('submit', function(e) {
     const framesCount = parseInt(document.getElementById('frames').value);
     const method = document.getElementById('method').value;
 
+    console.log('Selected Method:', method); // Debugging statement
+
+    // Hide all output containers
+    document.querySelectorAll('.output').forEach(container => {
+        container.style.display = 'none';
+        container.innerHTML = ''; // Clear previous results
+    });
+
     // Simulate the selected method
     if (method === 'LRU') {
+        console.log('Simulating LRU'); // Debugging statement
         simulateLRU(pages, framesCount);
-    } if (method === 'FIFO') {
+    } else if (method === 'FIFO') {
+        console.log('Simulating FIFO'); // Debugging statement
         simulateFIFO(pages, framesCount);
-    } if (method === 'OPT') {
+    } else if (method === 'OPT') {
+        console.log('Simulating OPT'); // Debugging statement
         simulateOPT(pages, framesCount);
     }
 });
+
 function simulateLRU(pages, framesCount) {
     let frames = [];
     let hits = 0;
@@ -23,6 +35,9 @@ function simulateLRU(pages, framesCount) {
         if (frames.includes(page)) {
             hits++;
             output += `<p>Page ${page} - Hit</p>`;
+            // Move the page to the end to mark it as recently used
+            frames = frames.filter(f => f !== page);
+            frames.push(page);
         } else {
             if (frames.length < framesCount) {
                 frames.push(page);
@@ -38,6 +53,7 @@ function simulateLRU(pages, framesCount) {
     output += `<p>Total Hits (LRU): ${hits}</p>`;
     output += `<p>Total Misses (LRU): ${pages.length - hits}</p>`;
     document.getElementById('output-lru').innerHTML = output;
+    document.getElementById('output-lru').style.display = 'block';
 }
 
 function simulateFIFO(pages, framesCount) {
@@ -65,6 +81,7 @@ function simulateFIFO(pages, framesCount) {
     output += `<p>Total Hits (FIFO): ${hits}</p>`;
     output += `<p>Total Misses (FIFO): ${pages.length - hits}</p>`;
     document.getElementById('output-fifo').innerHTML = output;
+    document.getElementById('output-fifo').style.display = 'block';
 }
 
 function simulateOPT(pages, framesCount) {
@@ -80,7 +97,7 @@ function simulateOPT(pages, framesCount) {
             if (frames.length < framesCount) {
                 frames.push(page);
             } else {
-                const pageToReplace = getOptimalPage(pages.slice(index), frames);
+                const pageToReplace = getOptimalPage(pages.slice(index + 1), frames);
                 const removedPage = frames.splice(frames.indexOf(pageToReplace), 1)[0];
                 output += `<p>Page ${removedPage} - Removed</p>`;
                 frames.push(page);
@@ -93,6 +110,7 @@ function simulateOPT(pages, framesCount) {
     output += `<p>Total Hits (OPT): ${hits}</p>`;
     output += `<p>Total Misses (OPT): ${pages.length - hits}</p>`;
     document.getElementById('output-opt').innerHTML = output;
+    document.getElementById('output-opt').style.display = 'block';
 }
 
 function getOptimalPage(futurePages, frames) {
